@@ -70,7 +70,11 @@ export default function PublicForm() {
 
       setSuccess(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Có lỗi xảy ra, vui lòng thử lại.');
+      const msg =
+        err && typeof err === 'object' && 'message' in err
+          ? String((err as { message: unknown }).message)
+          : 'Có lỗi xảy ra, vui lòng thử lại.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
