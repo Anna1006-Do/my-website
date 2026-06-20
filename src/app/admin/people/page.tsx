@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/lib/toast';
 import type { Person, Contact, Order, PipelineStatus } from '@/types';
 import { STAGE_LABELS, TYPE_LABELS } from '@/types';
 
@@ -55,7 +56,6 @@ export default function PeoplePage() {
     return () => {
       cancelled = true;
     };
-     
   }, [tick]);
 
   const filtered = query
@@ -78,6 +78,7 @@ export default function PeoplePage() {
       .from('orders')
       .insert({ person_id: selected.id, product_name: product, amount_vnd: amount, status });
     setShowAddOrder(false);
+    toast('✓ Đã thêm đơn hàng');
     refresh();
   }
 

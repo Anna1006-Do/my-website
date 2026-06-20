@@ -51,6 +51,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <main className="admin-main">{children}</main>
       </div>
+
+      <div id="toast" />
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from '@/lib/toast';
 import type { Contact, Person, ActivityLog, PipelineStatus } from '@/types';
 import { STAGES, STAGE_LABELS, TYPE_LABELS } from '@/types';
 
@@ -60,7 +61,6 @@ export default function LeadsPage() {
     return () => {
       cancelled = true;
     };
-     
   }, [tick]);
 
   const personOf = (pid: string) => people.find((p) => p.id === pid);
@@ -80,6 +80,7 @@ export default function LeadsPage() {
     });
     setNoteInput('');
     setSelected((prev) => (prev?.id === contact.id ? { ...prev, status: toStatus } : prev));
+    toast(`✓ Chuyển sang "${STAGE_LABELS[toStatus]}"`);
     refresh();
   }
 
