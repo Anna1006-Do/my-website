@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOI Cosmetics CRM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pink:#F94C8B;--pink-light:#fde8f2;--pink-mid:#fbd0e5;
+  --mint:#9ECFBC;--mint-light:#edf7f3;
+  --white:#fff;--bg:#fafafa;--border:#efefef;
+  --text:#1a1a1a;--text-2:#555;--text-3:#999;
+  --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.07);
+}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── TOP NAV ── */
+#topnav{position:fixed;top:0;left:0;right:0;height:52px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:24px;z-index:100}
+.nav-brand{font-size:15px;font-weight:600;color:var(--pink);letter-spacing:0.04em;margin-right:auto}
+.nav-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--text-2);font-size:13px;cursor:pointer;transition:all .15s}
+.nav-btn.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.nav-btn:hover:not(.active){border-color:var(--pink);color:var(--pink)}
+
+/* ── LAYOUT ── */
+#app{padding-top:52px;min-height:100vh}
+
+/* ── PUBLIC SITE ── */
+#view-public{min-height:calc(100vh - 52px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.form-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:48px;max-width:520px;width:100%;box-shadow:var(--shadow)}
+.form-card h1{font-size:26px;font-weight:300;color:var(--text);margin-bottom:6px;letter-spacing:-0.02em}
+.form-card p.sub{color:var(--text-3);margin-bottom:32px;font-size:14px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--text-2);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;transition:border .15s;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--pink)}
+.form-group textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.check-row{display:flex;align-items:center;gap:8px;margin-top:4px}
+.check-row input[type=checkbox]{accent-color:var(--pink);width:16px;height:16px}
+.check-row label{font-size:13px;color:var(--text-2);text-transform:none;letter-spacing:0}
+.btn-primary{width:100%;padding:13px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.btn-primary:hover{opacity:.88}
+.form-success{text-align:center;padding:40px 0}
+.form-success .check-icon{width:52px;height:52px;background:var(--mint-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px}
+.form-success h2{font-weight:500;font-size:18px;margin-bottom:8px}
+.form-success p{color:var(--text-3);font-size:14px}
+
+/* ── ADMIN LAYOUT ── */
+#view-admin{display:flex;min-height:calc(100vh - 52px)}
+#sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);padding:24px 0;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-3);padding:0 20px;margin-bottom:6px;margin-top:20px}
+.sidebar-label:first-child{margin-top:0}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;font-size:13px;color:var(--text-2);border-left:3px solid transparent;transition:all .12s}
+.sidebar-item:hover{background:var(--pink-light);color:var(--pink)}
+.sidebar-item.active{background:var(--pink-light);color:var(--pink);border-left-color:var(--pink);font-weight:500}
+.sidebar-item .icon{font-size:15px;width:20px;text-align:center}
+.sidebar-badge{margin-left:auto;background:var(--pink);color:#fff;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px}
+
+#admin-main{flex:1;padding:32px;overflow-y:auto}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-header h2{font-size:22px;font-weight:400;letter-spacing:-0.01em}
+.page-header p{color:var(--text-3);font-size:13px;margin-top:2px}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px}
+.stat-card .val{font-size:28px;font-weight:300;color:var(--text);letter-spacing:-0.02em}
+.stat-card .lbl{font-size:12px;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:0.06em}
+.stat-card.pink .val{color:var(--pink)}
+.stat-card.mint .val{color:#2da882}
+
+/* ── PIPELINE BAR ── */
+.pipeline-bar{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px}
+.pipe-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .12s;background:#fff;color:var(--text-2)}
+.pipe-pill.active,.pipe-pill:hover{background:var(--pink);color:#fff;border-color:var(--pink)}
+.pipe-pill span{margin-left:6px;opacity:.7;font-weight:400}
+
+/* ── TABLE ── */
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg)}
+th{padding:11px 16px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);text-align:left;border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-2)}
+tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--pink-light)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;white-space:nowrap}
+.badge-new{background:#fde8f2;color:#d6246a}
+.badge-contacted{background:#ede9fe;color:#6d28d9}
+.badge-discovery{background:#fef3c7;color:#b45309}
+.badge-proposal{background:#d1fae5;color:#065f46}
+.badge-won{background:#dcfce7;color:#15803d}
+.badge-lost{background:#f3f4f6;color:#6b7280}
+.badge-type{background:#f0faf7;color:#2a9d7f;font-size:11px}
+
+/* ── SEARCH ── */
+.search-row{display:flex;gap:12px;margin-bottom:20px}
+.search-input{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.search-input:focus{border-color:var(--pink)}
+.btn-sm{padding:8px 16px;border-radius:8px;border:1px solid var(--pink);background:var(--pink);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn-sm.outline{background:#fff;color:var(--pink)}
+.btn-sm:hover{opacity:.88}
+
+/* ── DETAIL PANEL ── */
+#detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.18);z-index:200}
+#detail-overlay.open{display:block}
+#detail-panel{position:fixed;top:0;right:0;width:520px;height:100vh;background:#fff;border-left:1px solid var(--border);box-shadow:-4px 0 24px rgba(0,0,0,.1);overflow-y:auto;z-index:201;transform:translateX(100%);transition:transform .25s ease}
+#detail-overlay.open #detail-panel{transform:translateX(0)}
+.panel-header{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.panel-header h3{font-size:18px;font-weight:500}
+.close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-3);line-height:1;padding:2px}
+.close-btn:hover{color:var(--text)}
+.panel-body{padding:24px}
+.panel-section{margin-bottom:28px}
+.panel-section h4{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.kv-list{display:grid;grid-template-columns:120px 1fr;gap:8px 0}
+.kv-list .k{font-size:12px;color:var(--text-3);padding:4px 0}
+.kv-list .v{font-size:13px;color:var(--text);padding:4px 0;font-weight:500}
+
+/* ── PIPELINE STEPS ── */
+.pipeline-steps{display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto}
+.step{padding:8px 16px;font-size:12px;font-weight:500;border:1px solid var(--border);background:#fff;color:var(--text-3);cursor:pointer;white-space:nowrap;transition:all .12s}
+.step:first-child{border-radius:8px 0 0 8px}
+.step:last-child{border-radius:0 8px 8px 0}
+.step:not(:first-child){border-left:none}
+.step.current{background:var(--pink);color:#fff;border-color:var(--pink)}
+.step.past{background:var(--pink-light);color:var(--pink);border-color:var(--pink-mid)}
+.step.won-step{background:#dcfce7;color:#15803d;border-color:#bbf7d0}
+.step.lost-step{background:#f3f4f6;color:#6b7280;border-color:#e5e7eb}
+.step:hover:not(.current):not(.won-step):not(.lost-step){background:var(--bg)}
+
+/* ── NOTE BOX ── */
+.note-box{margin-top:16px}
+.note-box textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;min-height:70px;outline:none}
+.note-box textarea:focus{border-color:var(--pink)}
+.note-row{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
+
+/* ── ACTIVITY LOG ── */
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--pink-mid);flex-shrink:0;margin-top:5px}
+.act-text{font-size:13px;color:var(--text-2)}
+.act-time{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* ── PERSON CARD ── */
+.person-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:box-shadow .15s}
+.person-card:hover{box-shadow:var(--shadow)}
+.person-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.person-avatar{width:38px;height:38px;border-radius:50%;background:var(--pink-light);color:var(--pink);font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.person-card h4{font-size:14px;font-weight:500;margin-bottom:4px}
+.person-card .email{font-size:12px;color:var(--text-3);margin-bottom:8px;word-break:break-all}
+.person-card .tags{display:flex;flex-wrap:wrap;gap:4px}
+
+/* ── ORDERS ── */
+.order-row td:last-child{color:var(--pink);font-weight:500}
+.status-paid{color:#15803d}
+.status-pending{color:#b45309}
+.status-refunded{color:#6b7280}
+
+/* ── NEWSLETTER ── */
+.nl-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px}
+.nl-row:last-child{border-bottom:none}
+.nl-info h5{font-size:13px;font-weight:500;margin-bottom:2px}
+.nl-info p{font-size:12px;color:var(--text-3)}
+
+/* ── ADD ORDER FORM ── */
+.inline-form{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px}
+.inline-form h5{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-3);margin-bottom:14px}
+.inline-form .fg{margin-bottom:12px}
+.inline-form label{font-size:11px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px}
+.inline-form input,.inline-form select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none}
+.inline-form input:focus,.inline-form select:focus{border-color:var(--pink)}
+.empty{padding:48px;text-align:center;color:var(--text-3);font-size:14px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .2s;z-index:300;pointer-events:none}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div id="topnav">
+  <div class="nav-brand">M·O·I</div>
+  <button class="nav-btn" onclick="switchView('public')">🌐 Public Form</button>
+  <button class="nav-btn active" onclick="switchView('admin')">/admin</button>
+</div>
+
+<!-- APP -->
+<div id="app"></div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay" onclick="closeDetail(event)">
+  <div id="detail-panel"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let state = {
+  view: 'admin',
+  adminTab: 'leads',
+  pipeFilter: 'all',
+  searchQuery: '',
+  formSuccess: false,
+  selectedContactId: null,
+  selectedPersonId: null,
+  showAddOrder: false,
+  people: [
+    {id:1,name:'Nguyễn Thị Lan',email:'lan.nguyen@gmail.com',phone:'0901234567',company:'',source_site:'facebook',ok_to_contact:true,attributes:{referred_by:'Facebook Ads',skin_type:'da vừa'},created_at:'2026-06-19T08:15:00'},
+    {id:2,name:'Trần Minh Châu',email:'chau.tran@yahoo.com',phone:'0912345678',company:'',source_site:'website',ok_to_contact:true,attributes:{referred_by:'Bạn bè giới thiệu',skin_type:'da sáng'},created_at:'2026-06-19T09:30:00'},
+    {id:3,name:'Lê Thị Hoa',email:'hoa.le@gmail.com',phone:'0923456789',company:'',source_site:'facebook',ok_to_contact:false,attributes:{referred_by:'Instagram',skin_type:'da ngăm'},created_at:'2026-06-19T11:00:00'},
+    {id:4,name:'Phạm Thu Hương',email:'huong.pham@gmail.com',phone:'0934567890',company:'',source_site:'facebook',ok_to_contact:true,attributes:{referred_by:'Facebook Ads',skin_type:'da vừa'},created_at:'2026-06-19T13:20:00'},
+    {id:5,name:'Vũ Thị Mai',email:'mai.vu@hotmail.com',phone:'0945678901',company:'',source_site:'website',ok_to_contact:true,attributes:{referred_by:'Google Search',skin_type:'da sáng'},created_at:'2026-06-19T15:45:00'},
+    {id:6,name:'Đặng Ngọc Anh',email:'anh.dang@gmail.com',phone:'0956789012',company:'',source_site:'facebook',ok_to_contact:true,attributes:{referred_by:'Facebook Ads',skin_type:'da ngăm'},created_at:'2026-06-20T07:00:00'},
+    {id:7,name:'Bùi Thị Tuyết',email:'tuyet.bui@gmail.com',phone:'0967890123',company:'',source_site:'website',ok_to_contact:false,attributes:{referred_by:'Bạn bè giới thiệu',skin_type:'da vừa'},created_at:'2026-06-20T08:30:00'},
+    {id:8,name:'Hoàng Lan Chi',email:'chi.hoang@gmail.com',phone:'0978901234',company:'',source_site:'facebook',ok_to_contact:true,attributes:{referred_by:'Facebook Ads',skin_type:'da sáng'},created_at:'2026-06-20T09:15:00'},
+  ],
+  contacts: [
+    {id:1,person_id:8,type:'product-info',subject:'Hỏi về phấn nền',message:'Mình muốn hỏi phấn nền MOI có kiềm dầu tốt không? Da mình hơi dầu ở vùng chữ T.',source:'facebook',status:'new_lead',created_at:'2026-06-20T09:15:00'},
+    {id:2,person_id:6,type:'pricing',subject:'Giá son môi lâu trôi',message:'Bạn ơi, son lâu trôi của MOI giá bao nhiêu? Mình thấy trên website khác nhau với trên FB.',source:'facebook',status:'new_lead',created_at:'2026-06-20T07:00:00'},
+    {id:3,person_id:7,type:'promotion',subject:'Có khuyến mãi không?',message:'Mình nghe nói MOI đang có sale 6/6, bây giờ còn không? Mình muốn mua combo skincare.',source:'website',status:'contacted',created_at:'2026-06-20T08:30:00'},
+    {id:4,person_id:5,type:'price-comparison',subject:'Giá trên web vs Facebook',message:'Sao giá son môi trên website 350k mà trên Facebook page lại thấy 299k? Mình mua ở đâu đúng giá hơn?',source:'website',status:'contacted',created_at:'2026-06-19T15:45:00'},
+    {id:5,person_id:4,type:'product-usage',subject:'Cách dùng cushion',message:'Mình mới mua cushion MOI nhưng không biết cách đánh cho đều, bạn có thể hướng dẫn không?',source:'facebook',status:'discovery_call',created_at:'2026-06-19T13:20:00'},
+    {id:6,person_id:3,type:'product-info',subject:'Hỏi về mascara',message:'Mascara của MOI có chống nước không? Mình hay bơi nên cần loại chống nước tốt.',source:'facebook',status:'proposal',created_at:'2026-06-19T11:00:00'},
+    {id:7,person_id:2,type:'pricing',subject:'Combo mua nhiều',message:'Nếu mình mua 5 món trở lên thì có giảm giá không? Mình muốn mua cho cả nhóm bạn.',source:'website',status:'won',created_at:'2026-06-19T09:30:00'},
+    {id:8,person_id:1,type:'promotion',subject:'Mã giảm giá sinh nhật',message:'Hôm nay là sinh nhật mình, MOI có chương trình giảm giá sinh nhật không ạ?',source:'facebook',status:'won',created_at:'2026-06-19T08:15:00'},
+  ],
+  activity_log: [
+    {id:1,contact_id:3,person_id:7,from_status:'new_lead',to_status:'contacted',actor:'CS Team',note:'Đã nhắn tin xác nhận khuyến mãi còn đến hết tháng',created_at:'2026-06-20T09:00:00'},
+    {id:2,contact_id:4,person_id:5,from_status:'new_lead',to_status:'contacted',actor:'CS Team',note:'Đã giải thích chính sách giá đồng nhất',created_at:'2026-06-19T16:30:00'},
+    {id:3,contact_id:5,person_id:4,from_status:'new_lead',to_status:'contacted',actor:'CS Team',note:'Đã gửi video hướng dẫn đánh cushion',created_at:'2026-06-19T14:00:00'},
+    {id:4,contact_id:5,person_id:4,from_status:'contacted',to_status:'discovery_call',actor:'CS Team',note:'Khách muốn được tư vấn trực tiếp qua video call',created_at:'2026-06-19T14:45:00'},
+    {id:5,contact_id:6,person_id:3,from_status:'new_lead',to_status:'contacted',actor:'CS Team',note:'Đã xác nhận mascara chống nước 24h',created_at:'2026-06-19T11:30:00'},
+    {id:6,contact_id:6,person_id:3,from_status:'contacted',to_status:'proposal',actor:'CS Team',note:'Đã gửi báo giá combo mascara + remover',created_at:'2026-06-19T12:00:00'},
+    {id:7,contact_id:7,person_id:2,from_status:'proposal',to_status:'won',actor:'CS Team',note:'Khách đặt combo 6 món — tổng 1.8tr',created_at:'2026-06-19T10:30:00'},
+    {id:8,contact_id:8,person_id:1,from_status:'new_lead',to_status:'won',actor:'CS Team',note:'Khách dùng mã BIRTHDAY10 — giảm 10%',created_at:'2026-06-19T08:45:00'},
+  ],
+  orders: [
+    {id:1,person_id:2,product_name:'Combo Son + Phấn + Mascara',amount_cents:180000000,currency:'VND',status:'paid',created_at:'2026-06-19T10:35:00'},
+    {id:2,person_id:1,product_name:'Son Lâu Trôi #05 Rose',amount_cents:35000000,currency:'VND',status:'paid',created_at:'2026-06-19T09:00:00'},
+    {id:3,person_id:4,product_name:'Cushion Kiềm Dầu SPF50',amount_cents:42000000,currency:'VND',status:'pending',created_at:'2026-06-19T14:50:00'},
+  ],
+  nextId: {person:9, contact:9, log:9, order:4}
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const STAGES = ['new_lead','contacted','discovery_call','proposal','won','lost'];
+const STAGE_LABELS = {new_lead:'Mới',contacted:'Đã liên hệ',discovery_call:'Tư vấn',proposal:'Báo giá',won:'Chốt đơn',lost:'Mất lead'};
+const TYPE_LABELS = {'product-info':'Thông tin SP','pricing':'Hỏi giá','promotion':'Khuyến mãi','product-usage':'Công dụng','price-comparison':'So sánh giá'};
+const TYPES = Object.keys(TYPE_LABELS);
+const SKIN_TYPES = ['da sáng','da vừa','da ngăm'];
+
+function stageBadge(s){
+  const cls={new_lead:'badge-new',contacted:'badge-contacted',discovery_call:'badge-discovery',proposal:'badge-proposal',won:'badge-won',lost:'badge-lost'}[s]||'';
+  return `<span class="badge ${cls}">${STAGE_LABELS[s]||s}</span>`;
+}
+function typeBadge(t){return `<span class="badge badge-type">${TYPE_LABELS[t]||t}</span>`;}
+function initials(n){return n?n.split(' ').slice(-2).map(x=>x[0]).join('').toUpperCase():'?';}
+function fmt(iso){const d=new Date(iso);return d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+ ' ' +d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});}
+function fmtMoney(cents){return (cents/100).toLocaleString('vi-VN')+'đ';}
+function getPerson(id){return state.people.find(p=>p.id===id);}
+function getContact(id){return state.contacts.find(c=>c.id===id);}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  const navBtns=document.querySelectorAll('.nav-btn');
+  navBtns.forEach(b=>b.classList.remove('active'));
+  if(state.view==='public') navBtns[0].classList.add('active');
+  else navBtns[1].classList.add('active');
+
+  if(state.view==='public') app.innerHTML=renderPublic();
+  else app.innerHTML=renderAdmin();
+}
+
+// ── PUBLIC FORM ───────────────────────────────────────────────────────────
+function renderPublic(){
+  if(state.formSuccess) return `
+  <div id="view-public">
+    <div class="form-card">
+      <div class="form-success">
+        <div class="check-icon">✓</div>
+        <h2>Cảm ơn bạn đã liên hệ!</h2>
+        <p>MOI sẽ phản hồi trong thời gian sớm nhất.<br>Hãy kiểm tra email để nhận xác nhận từ chúng mình nhé.</p>
+        <button class="btn-primary" style="margin-top:24px;width:auto;padding:10px 32px" onclick="resetForm()">Gửi thêm yêu cầu</button>
+      </div>
+    </div>
+  </div>`;
+
+  return `
+  <div id="view-public">
+    <div class="form-card">
+      <h1>Liên hệ với MOI 💄</h1>
+      <p class="sub">Chúng mình sẽ trả lời bạn trong vòng 2 giờ làm việc.</p>
+      <div class="form-row">
+        <div class="form-group"><label>Họ tên *</label><input id="f-name" type="text" placeholder="Nguyễn Thị Lan"></div>
+        <div class="form-group"><label>Số điện thoại</label><input id="f-phone" type="tel" placeholder="0901 234 567"></div>
+      </div>
+      <div class="form-group"><label>Email *</label><input id="f-email" type="email" placeholder="ban@email.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Loại câu hỏi *</label>
+          <select id="f-type">
+            <option value="">-- Chọn --</option>
+            ${TYPES.map(t=>`<option value="${t}">${TYPE_LABELS[t]}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label>Loại da</label>
+          <select id="f-skin">
+            <option value="">-- Chọn --</option>
+            ${SKIN_TYPES.map(s=>`<option value="${s}">${s}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Biết đến MOI qua</label><input id="f-referred" type="text" placeholder="Facebook Ads / Bạn bè / TikTok..."></div>
+      <div class="form-group"><label>Nội dung *</label><textarea id="f-msg" placeholder="Bạn muốn hỏi gì? Càng chi tiết thì mình trả lời được chính xác hơn nhé!"></textarea></div>
+      <div class="form-group">
+        <div class="check-row">
+          <input type="checkbox" id="f-ok" checked>
+          <label for="f-ok">Đồng ý nhận thông tin ưu đãi từ MOI Cosmetics</label>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitForm()">Gửi yêu cầu →</button>
+    </div>
+  </div>`;
+}
+
+function submitForm(){
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const type=document.getElementById('f-type').value;
+  const msg=document.getElementById('f-msg').value.trim();
+  if(!name||!email||!type||!msg){toast('⚠ Vui lòng điền đầy đủ các trường bắt buộc');return;}
+
+  const phone=document.getElementById('f-phone').value.trim();
+  const skin=document.getElementById('f-skin').value;
+  const referred=document.getElementById('f-referred').value.trim();
+  const ok=document.getElementById('f-ok').checked;
+
+  // upsert person by email
+  let person=state.people.find(p=>p.email===email);
+  if(!person){
+    person={id:state.nextId.person++,name,email,phone,company:'',source_site:'website',ok_to_contact:ok,attributes:{referred_by:referred,skin_type:skin},created_at:new Date().toISOString()};
+    state.people.unshift(person);
+  }
+
+  // create contact
+  const contact={id:state.nextId.contact++,person_id:person.id,type,subject:`Inquiry from ${name}`,message:msg,source:'website',status:'new_lead',created_at:new Date().toISOString()};
+  state.contacts.unshift(contact);
+
+  state.formSuccess=true;
+  render();
+}
+
+function resetForm(){state.formSuccess=false;render();}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────
+function renderAdmin(){
+  const newCount=state.contacts.filter(c=>c.status==='new_lead').length;
+  const tabs=[
+    {id:'leads',icon:'📥',label:'Leads',badge:newCount>0?newCount:null},
+    {id:'people',icon:'👥',label:'People'},
+    {id:'orders',icon:'🛒',label:'Orders'},
+    {id:'newsletter',icon:'📧',label:'Newsletter'},
+  ];
+
+  const sidebar=`
+  <div id="sidebar">
+    <div class="sidebar-label">CRM</div>
+    ${tabs.map(t=>`
+    <div class="sidebar-item${state.adminTab===t.id?' active':''}" onclick="setTab('${t.id}')">
+      <span class="icon">${t.icon}</span>${t.label}
+      ${t.badge?`<span class="sidebar-badge">${t.badge}</span>`:''}
+    </div>`).join('')}
+  </div>`;
+
+  let main='';
+  if(state.adminTab==='leads') main=renderLeads();
+  else if(state.adminTab==='people') main=renderPeople();
+  else if(state.adminTab==='orders') main=renderOrders();
+  else if(state.adminTab==='newsletter') main=renderNewsletter();
+
+  return `<div id="view-admin">${sidebar}<div id="admin-main">${main}</div></div>`;
+}
+
+// ── LEADS TAB ─────────────────────────────────────────────────────────────
+function renderLeads(){
+  const total=state.contacts.length;
+  const newL=state.contacts.filter(c=>c.status==='new_lead').length;
+  const won=state.contacts.filter(c=>c.status==='won').length;
+  const active=state.contacts.filter(c=>!['won','lost'].includes(c.status)).length;
+
+  const filtered=state.pipeFilter==='all'
+    ? state.contacts
+    : state.contacts.filter(c=>c.status===state.pipeFilter);
+  const sorted=[...filtered].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  return `
+  <div class="page-header">
+    <div><h2>Leads</h2><p>${total} inquiries tổng cộng</p></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card pink"><div class="val">${newL}</div><div class="lbl">Mới hôm nay</div></div>
+    <div class="stat-card"><div class="val">${active}</div><div class="lbl">Đang xử lý</div></div>
+    <div class="stat-card mint"><div class="val">${won}</div><div class="lbl">Chốt đơn</div></div>
+    <div class="stat-card"><div class="val">${total}</div><div class="lbl">Tổng inquiry</div></div>
+  </div>
+  <div class="pipeline-bar">
+    <div class="pipe-pill${state.pipeFilter==='all'?' active':''}" onclick="setPipeFilter('all')">Tất cả <span>${total}</span></div>
+    ${STAGES.map(s=>{const n=state.contacts.filter(c=>c.status===s).length;return`<div class="pipe-pill${state.pipeFilter===s?' active':''}" onclick="setPipeFilter('${s}')">${STAGE_LABELS[s]} <span>${n}</span></div>`}).join('')}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Khách hàng</th><th>Loại</th><th>Nội dung</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+      <tbody>
+        ${sorted.length===0?`<tr><td colspan="5" class="empty">Không có leads</td></tr>`:''}
+        ${sorted.map(c=>{const p=getPerson(c.person_id)||{name:'Unknown',email:''};return`
+        <tr onclick="openContact(${c.id})">
+          <td><div style="font-weight:500;color:var(--text)">${p.name}</div><div style="font-size:12px;color:var(--text-3)">${p.email}</div></td>
+          <td>${typeBadge(c.type)}</td>
+          <td style="max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.message}</td>
+          <td>${stageBadge(c.status)}</td>
+          <td style="white-space:nowrap;color:var(--text-3)">${fmt(c.created_at)}</td>
+        </tr>`}).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ── PEOPLE TAB ────────────────────────────────────────────────────────────
+function renderPeople(){
+  const q=state.searchQuery.toLowerCase();
+  const filtered=q
+    ? state.people.filter(p=>p.name.toLowerCase().includes(q)||p.email.toLowerCase().includes(q))
+    : state.people;
+
+  return `
+  <div class="page-header">
+    <div><h2>People</h2><p>${state.people.length} contacts</p></div>
+  </div>
+  <div class="search-row">
+    <input class="search-input" placeholder="Tìm theo tên hoặc email..." value="${state.searchQuery}" oninput="setSearch(this.value)">
+  </div>
+  ${filtered.length===0?`<div class="empty">Không tìm thấy</div>`:''}
+  <div class="person-grid">
+    ${filtered.map(p=>{
+      const inquiries=state.contacts.filter(c=>c.person_id===p.id).length;
+      return `
+      <div class="person-card" onclick="openPerson(${p.id})">
+        <div class="person-avatar">${initials(p.name)}</div>
+        <h4>${p.name}</h4>
+        <div class="email">${p.email}</div>
+        <div class="tags">
+          ${p.attributes.skin_type?`<span class="badge badge-type">${p.attributes.skin_type}</span>`:''}
+          ${p.ok_to_contact?`<span class="badge" style="background:#edf7f3;color:#2a9d7f">Newsletter</span>`:''}
+          <span class="badge" style="background:#f3f4f6;color:#666">${inquiries} inquiry</span>
+        </div>
+        ${p.attributes.referred_by?`<div style="margin-top:8px;font-size:11px;color:var(--text-3)">via ${p.attributes.referred_by}</div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── ORDERS TAB ────────────────────────────────────────────────────────────
+function renderOrders(){
+  const sorted=[...state.orders].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const total=state.orders.filter(o=>o.status==='paid').reduce((s,o)=>s+o.amount_cents,0);
+  return `
+  <div class="page-header">
+    <div><h2>Orders</h2><p>${state.orders.length} đơn hàng · ${fmtMoney(total)} đã thu</p></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Khách hàng</th><th>Sản phẩm</th><th>Giá trị</th><th>Trạng thái</th><th>Ngày</th></tr></thead>
+      <tbody>
+        ${sorted.map(o=>{const p=getPerson(o.person_id)||{name:'?',email:''};const sc={paid:'status-paid',pending:'status-pending',refunded:'status-refunded'}[o.status]||'';return`
+        <tr class="order-row" onclick="openPerson(${o.person_id})">
+          <td><div style="font-weight:500">${p.name}</div><div style="font-size:12px;color:var(--text-3)">${p.email}</div></td>
+          <td>${o.product_name}</td>
+          <td>${fmtMoney(o.amount_cents)}</td>
+          <td><span class="${sc}">${{paid:'✓ Đã thanh toán',pending:'⏳ Chờ TT',refunded:'↩ Hoàn tiền',cancelled:'✗ Huỷ'}[o.status]||o.status}</span></td>
+          <td style="color:var(--text-3)">${fmt(o.created_at)}</td>
+        </tr>`}).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ── NEWSLETTER TAB ────────────────────────────────────────────────────────
+function renderNewsletter(){
+  const subs=state.people.filter(p=>p.ok_to_contact);
+  return `
+  <div class="page-header">
+    <div><h2>Newsletter</h2><p>${subs.length} người đăng ký nhận tin</p></div>
+  </div>
+  <div class="table-wrap">
+    ${subs.length===0?`<div class="empty">Chưa có người đăng ký</div>`:''}
+    ${subs.map(p=>`
+    <div class="nl-row">
+      <div class="nl-info">
+        <h5>${p.name}</h5>
+        <p>${p.email} · ${p.phone||'–'}</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${p.attributes.skin_type?`<span class="badge badge-type">${p.attributes.skin_type}</span>`:''}
+        <span style="font-size:12px;color:var(--text-3)">${fmt(p.created_at)}</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── CONTACT DETAIL PANEL ──────────────────────────────────────────────────
+function openContact(id){
+  state.selectedContactId=id;
+  state.selectedPersonId=null;
+  renderDetail();
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function renderDetail(){
+  const c=getContact(state.selectedContactId);
+  if(!c) return;
+  const p=getPerson(c.person_id)||{name:'Unknown',email:''};
+  const logs=state.activity_log.filter(l=>l.contact_id===c.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const curIdx=STAGES.indexOf(c.status);
+
+  document.getElementById('detail-panel').innerHTML=`
+  <div class="panel-header">
+    <div>
+      <h3>${p.name}</h3>
+      <div style="margin-top:4px;display:flex;gap:8px">${typeBadge(c.type)} ${stageBadge(c.status)}</div>
+    </div>
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="panel-body">
+
+    <div class="panel-section">
+      <h4>Pipeline</h4>
+      <div class="pipeline-steps">
+        ${STAGES.map((s,i)=>{
+          let cls='step';
+          if(s==='won'&&c.status==='won') cls='step won-step';
+          else if(s==='lost'&&c.status==='lost') cls='step lost-step';
+          else if(i<curIdx) cls='step past';
+          else if(i===curIdx) cls='step current';
+          return `<div class="${cls}" onclick="moveStage('${s}')">${STAGE_LABELS[s]}</div>`;
+        }).join('')}
+      </div>
+      <div class="note-box">
+        <textarea id="note-input" placeholder="Ghi chú (tuỳ chọn)..."></textarea>
+        <div class="note-row">
+          <button class="btn-sm outline" onclick="moveToNext()">Chuyển bước tiếp →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h4>Nội dung inquiry</h4>
+      <p style="font-size:14px;color:var(--text);line-height:1.6">${c.message}</p>
+      <div style="margin-top:12px;font-size:12px;color:var(--text-3)">${fmt(c.created_at)} · via ${c.source}</div>
+    </div>
+
+    <div class="panel-section">
+      <h4>Thông tin khách hàng</h4>
+      <div class="kv-list">
+        <div class="k">Email</div><div class="v">${p.email}</div>
+        <div class="k">Điện thoại</div><div class="v">${p.phone||'–'}</div>
+        <div class="k">Nguồn</div><div class="v">${p.source_site||'–'}</div>
+        <div class="k">Loại da</div><div class="v">${p.attributes?.skin_type||'–'}</div>
+        <div class="k">Biết MOI qua</div><div class="v">${p.attributes?.referred_by||'–'}</div>
+        <div class="k">Newsletter</div><div class="v">${p.ok_to_contact?'✓ Có đăng ký':'–'}</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h4>Lịch sử hoạt động</h4>
+      ${logs.length===0?`<p style="color:var(--text-3);font-size:13px">Chưa có hoạt động</p>`:''}
+      ${logs.map(l=>`
+      <div class="activity-item">
+        <div class="act-dot"></div>
+        <div>
+          <div class="act-text"><strong>${STAGE_LABELS[l.from_status]}</strong> → <strong>${STAGE_LABELS[l.to_status]}</strong> · ${l.actor}${l.note?'<br><span style="color:var(--text-3)">'+l.note+'</span>':''}</div>
+          <div class="act-time">${fmt(l.created_at)}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function moveStage(toStatus){
+  const c=getContact(state.selectedContactId);
+  if(!c||c.status===toStatus) return;
+  const note=document.getElementById('note-input')?.value.trim()||'';
+  const log={id:state.nextId.log++,contact_id:c.id,person_id:c.person_id,from_status:c.status,to_status:toStatus,actor:'CS Team',note,created_at:new Date().toISOString()};
+  state.activity_log.push(log);
+  c.status=toStatus;
+  toast(`✓ Chuyển sang "${STAGE_LABELS[toStatus]}"`);
+  renderDetail();
+  render();
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function moveToNext(){
+  const c=getContact(state.selectedContactId);
+  if(!c) return;
+  const idx=STAGES.indexOf(c.status);
+  if(idx<STAGES.length-2) moveStage(STAGES[idx+1]);
+  else toast('Đã ở bước cuối');
+}
+
+// ── PERSON DETAIL PANEL ───────────────────────────────────────────────────
+function openPerson(id){
+  state.selectedPersonId=id;
+  state.selectedContactId=null;
+  state.showAddOrder=false;
+  renderPersonDetail();
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function renderPersonDetail(){
+  const p=getPerson(state.selectedPersonId);
+  if(!p) return;
+  const contacts=state.contacts.filter(c=>c.person_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const orders=state.orders.filter(o=>o.person_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+
+  document.getElementById('detail-panel').innerHTML=`
+  <div class="panel-header">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="person-avatar" style="width:44px;height:44px;font-size:17px">${initials(p.name)}</div>
+      <div><h3>${p.name}</h3><div style="font-size:13px;color:var(--text-3)">${p.email}</div></div>
+    </div>
+    <button class="close-btn" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="panel-section">
+      <h4>Thông tin</h4>
+      <div class="kv-list">
+        <div class="k">Điện thoại</div><div class="v">${p.phone||'–'}</div>
+        <div class="k">Nguồn</div><div class="v">${p.source_site||'–'}</div>
+        <div class="k">Loại da</div><div class="v">${p.attributes?.skin_type||'–'}</div>
+        <div class="k">Biết MOI qua</div><div class="v">${p.attributes?.referred_by||'–'}</div>
+        <div class="k">Newsletter</div><div class="v">${p.ok_to_contact?'✓ Đăng ký':'–'}</div>
+        <div class="k">Ngày tạo</div><div class="v">${fmt(p.created_at)}</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h4>Inquiries (${contacts.length})</h4>
+      ${contacts.length===0?`<p style="color:var(--text-3);font-size:13px">Chưa có inquiry</p>`:''}
+      ${contacts.map(c=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openContact(${c.id})">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          ${typeBadge(c.type)} ${stageBadge(c.status)}
+        </div>
+        <div style="font-size:13px;color:var(--text-2);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.message}</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px">${fmt(c.created_at)}</div>
+      </div>`).join('')}
+    </div>
+
+    <div class="panel-section">
+      <h4>Orders (${orders.length})</h4>
+      ${orders.map(o=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500">${o.product_name}</div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:13px;color:var(--pink)">${fmtMoney(o.amount_cents)}</span>
+          <span class="${{paid:'status-paid',pending:'status-pending',refunded:'status-refunded'}[o.status]||''}" style="font-size:12px">${{paid:'Đã TT',pending:'Chờ TT',refunded:'Hoàn'}[o.status]||o.status}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">${fmt(o.created_at)}</div>
+      </div>`).join('')}
+      ${state.showAddOrder ? renderAddOrderForm(p.id) : `<button class="btn-sm outline" style="margin-top:12px" onclick="toggleAddOrder()">+ Thêm đơn hàng</button>`}
+    </div>
+  </div>`;
+}
+
+function renderAddOrderForm(personId){
+  return `
+  <div class="inline-form">
+    <h5>Thêm đơn hàng</h5>
+    <div class="fg"><label>Sản phẩm</label><input id="o-product" placeholder="Tên sản phẩm"></div>
+    <div class="fg"><label>Giá (VND)</label><input id="o-amount" type="number" placeholder="350000"></div>
+    <div class="fg"><label>Trạng thái</label>
+      <select id="o-status"><option value="pending">Chờ thanh toán</option><option value="paid">Đã thanh toán</option></select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn-sm" onclick="addOrder(${personId})">Lưu</button>
+      <button class="btn-sm outline" onclick="toggleAddOrder()">Huỷ</button>
+    </div>
+  </div>`;
+}
+
+function toggleAddOrder(){state.showAddOrder=!state.showAddOrder;renderPersonDetail();}
+
+function addOrder(personId){
+  const product=document.getElementById('o-product').value.trim();
+  const amount=parseInt(document.getElementById('o-amount').value)*100;
+  const status=document.getElementById('o-status').value;
+  if(!product||!amount){toast('⚠ Nhập tên sản phẩm và giá');return;}
+  state.orders.push({id:state.nextId.order++,person_id:personId,product_name:product,amount_cents:amount,currency:'VND',status,created_at:new Date().toISOString()});
+  state.showAddOrder=false;
+  toast('✓ Đã thêm đơn hàng');
+  renderPersonDetail();
+  render();
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function switchView(v){state.view=v;state.formSuccess=false;closeDetail();render();}
+function setTab(t){state.adminTab=t;state.searchQuery='';closeDetail();render();}
+function setPipeFilter(f){state.pipeFilter=f;render();}
+function setSearch(q){state.searchQuery=q;render();}
+function closeDetail(e){
+  if(e&&e.target!==document.getElementById('detail-overlay')) return;
+  document.getElementById('detail-overlay').classList.remove('open');
+  state.selectedContactId=null;
+  state.selectedPersonId=null;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
